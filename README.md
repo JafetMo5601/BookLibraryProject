@@ -17,8 +17,8 @@ Since that was no included you can start the project here are the instructions t
 
 1. Run "docker-compose up in root folder to iniciate the SQL Server"
 1. Start the dotnet application via cli with the following two commands: 
-1.1 dotnet dev-certs https
-1.2 dotnet run --project BookLibrary/BookLibrary.csproj 
+  1. Install HTTPS certificates: "dotnet dev-certs https"
+  1. Start the application "dotnet run --project BookLibrary/BookLibrary.csproj"
 1. Install all the dependencies of ReactJS with the command "npm install"
 1. Start the react project with "npm run dev"
 
