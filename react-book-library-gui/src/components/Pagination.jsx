@@ -1,11 +1,8 @@
 import React from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-    }
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     return (
         <ButtonGroup aria-label="Pagination" className="mt-4">
@@ -35,3 +32,5 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         </ButtonGroup>
     );
 }
+
+export default Pagination;

@@ -20,21 +20,20 @@ namespace BookLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<object>> GetBooks([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            var totalCount = await _context.Books.CountAsync();
             var books = await _context.Books
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return books;
+            return new
+            {
+                totalCount,
+                books
+            };
         }
-
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        //{
-        //    return await _context.Books.ToListAsync();
-        //}
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)

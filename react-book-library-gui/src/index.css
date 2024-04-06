@@ -1,1 +1,22 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+.subtitle {
+    font-size: 1.2rem; /* Adjust the font size as needed */
+    font-weight: bold; /* Make the subtitle bold */
+}
+
+.form-container {
+    max-width: 600px;
+    padding: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+    overflow: hidden;
+    max-height: 0;
+    padding: 0;
+  }
+  
+  .form-container.show-form {
+    max-height: 1000px;
+    padding: 20px;
+  }
+  

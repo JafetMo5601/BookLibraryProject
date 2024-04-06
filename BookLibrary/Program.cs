@@ -18,12 +18,12 @@ builder.Services.AddScoped<Seed>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.WithOrigins("http://localhost:5173")
-               .AllowAnyHeader()
-               .AllowAnyMethod();
-    });
+    options.AddPolicy("AllowSpecificHeaders",
+        builder => {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
 });
 
 var app = builder.Build();
@@ -42,7 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseItToSeedSqlServer();
 }
 
-app.UseCors();
+app.UseCors("AllowSpecificHeaders");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseRouting();

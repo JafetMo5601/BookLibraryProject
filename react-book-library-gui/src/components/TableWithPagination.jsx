@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Spinner } from 'react-bootstrap';
+import { Table, Spinner, ButtonGroup, Button } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../config';
 import Pagination from './Pagination';
+import ConfirmationModal from './ConfirmationModal'; 
+import SearchBar from './SearchBar'; 
 
 const TableWithPagination = () => {
     const [data, setData] = useState([]);
@@ -10,6 +12,12 @@ const TableWithPagination = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [selectedBookId, setSelectedBookId] = useState(null);
+    const [action, setAction] = useState('');
+    const [updatedData, setUpdatedData] = useState({});
+    const [editableField, setEditableField] = useState({ id: null, field: null });
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         fetchData(currentPage);
@@ -19,12 +27,10 @@ const TableWithPagination = () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.apiUrl}/books?page=${page}&pageSize=5`);
-            setData(response.data);
-            const totalBooks = await axios.get(`${config.apiUrl}/books`);
-            const totalPages = Math.ceil(totalBooks.data.length / 5);
-            setTotalPages(totalPages);
+            setData(response.data.books);
+            setTotalPages(Math.ceil(response.data.totalCount / 5));
         } catch (error) {
-            console.error('Error fetching data:', error);
+            setErrorMessage('Error fetching data. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -38,6 +44,77 @@ const TableWithPagination = () => {
         setSearchQuery(e.target.value);
     }
 
+    const handleDelete = async (id) => {
+        setSelectedBookId(id);
+        setAction('delete');
+        setShowModal(true);
+    }
+
+    const handleUpdate = async () => {
+        try {
+            const updatedBook = { ...data.find(book => book.book_id === selectedBookId), ...updatedData[selectedBookId] };
+            if (updatedBook.authors) {
+                const [firstName, lastName] = updatedBook.authors.split(' '); // Split full name into first name and last name
+                updatedBook.first_name = firstName;
+                updatedBook.last_name = lastName;
+                delete updatedBook.authors;
+            }
+            await axios.put(`${config.apiUrl}/books/${selectedBookId}`, updatedBook);
+            setShowModal(false);
+            fetchData(currentPage);
+        } catch (error) {
+            setErrorMessage('Error updating book. Please try again later.');
+        }
+    }
+
+    const handleEditField = (id, field, value) => {
+        if (field !== 'available_copies') {
+            setEditableField({ id, field });
+            if (field === 'authors') {
+                // If editing authors, split full name into first name and last name
+                const [firstName, lastName] = value.split(' ');
+                setUpdatedData({ ...updatedData, [id]: { ...updatedData[id], 'first_name': firstName, 'last_name': lastName } });
+            } else {
+                setUpdatedData({ ...updatedData, [id]: { ...updatedData[id], [field]: value } });
+            }
+        }
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    }
+
+    const handleInputChange = (e, id, field) => {
+        if (field === 'authors') {
+            const value = e.target.value;
+            setUpdatedData({ ...updatedData, [id]: { ...updatedData[id], [field]: value } });
+        } else {
+            handleEditField(id, field, e.target.value);
+        }
+    }
+
+    const handleConfirmAction = async () => {
+        try {
+            if (action === 'delete') {
+                await axios.delete(`${config.apiUrl}/books/${selectedBookId}`);
+            } else if (action === 'update') {
+                await handleUpdate();
+            }
+            setShowModal(false);
+            fetchData(currentPage);
+        } catch (error) {
+            setErrorMessage('Error performing action. Please try again later.');
+        }
+    }
+
+    const renderTableCell = (id, field, value) => {
+        if (editableField.id === id && editableField.field === field && field !== 'available_copies') {
+            return <input type="text" value={updatedData[id]?.[field] || value} onChange={(e) => handleInputChange(e, id, field)} />;
+        } else {
+            return <span onClick={() => handleEditField(id, field, value)}>{value}</span>;
+        }
+    }
+
     const filteredData = data.filter(book => {
         if (book && book.title) {
             const title = book.title.toLowerCase();
@@ -48,15 +125,8 @@ const TableWithPagination = () => {
 
     return (
         <div className="my-4">
-            <div className="mb-3">
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
-            </div>
+            {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+            <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} /> {/* Render the SearchBar component */}
             {loading ? (
                 <div className="text-center">
                     <Spinner animation="border" role="status">
@@ -74,17 +144,24 @@ const TableWithPagination = () => {
                                 <th>ISBN</th>
                                 <th>Category</th>
                                 <th>Available Copies</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredData.map(book => (
                                 <tr key={book.book_id}>
-                                    <td>{book.title}</td>
-                                    <td>{`${book.first_name} ${book.last_name}`}</td>
-                                    <td>{`${book.type}`}</td>
-                                    <td>{book.isbn}</td>
-                                    <td>{book.category}</td>
+                                    <td>{renderTableCell(book.book_id, 'title', book.title)}</td>
+                                    <td>{renderTableCell(book.book_id, 'authors', `${book.first_name} ${book.last_name}`)}</td>
+                                    <td>{renderTableCell(book.book_id, 'type', book.type)}</td>
+                                    <td>{renderTableCell(book.book_id, 'isbn', book.isbn)}</td>
+                                    <td>{renderTableCell(book.book_id, 'category', book.category)}</td>
                                     <td>{book.total_copies - book.copies_in_use}</td>
+                                    <td>
+                                        <ButtonGroup>
+                                            <Button variant="warning" onClick={() => { setSelectedBookId(book.book_id); setAction('update'); setShowModal(true); }}><i className="bi bi-pencil-fill"></i></Button>
+                                            <Button variant="danger" onClick={() => handleDelete(book.book_id)}><i className="bi bi-trash-fill"></i></Button>
+                                        </ButtonGroup>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -93,6 +170,12 @@ const TableWithPagination = () => {
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
+                    />
+                    <ConfirmationModal
+                        show={showModal}
+                        handleClose={handleCloseModal}
+                        handleConfirm={handleConfirmAction}
+                        action={action === 'delete' ? 'delete' : 'update'}
                     />
                 </>
             )}
