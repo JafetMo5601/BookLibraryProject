@@ -4,6 +4,7 @@ import axios from 'axios';
 import config from '../config';
 import Pagination from './Pagination';
 import ConfirmationModal from './ConfirmationModal'; 
+import DropdownFilter from './DropdownFilter';
 import SearchBar from './SearchBar'; 
 
 const TableWithPagination = () => {
@@ -18,10 +19,14 @@ const TableWithPagination = () => {
     const [updatedData, setUpdatedData] = useState({});
     const [editableField, setEditableField] = useState({ id: null, field: null });
     const [errorMessage, setErrorMessage] = useState('');
+    const [filterType, setFilterType] = useState('');
+    const [filterCategory, setFilterCategory] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [types, setTypes] = useState([]);
 
     useEffect(() => {
         fetchData(currentPage);
-    }, [currentPage]);
+    }, [currentPage, filterType, filterCategory]);
 
     const fetchData = async (page) => {
         setLoading(true);
@@ -29,11 +34,31 @@ const TableWithPagination = () => {
             const response = await axios.get(`${config.apiUrl}/books?page=${page}&pageSize=5`);
             setData(response.data.books);
             setTotalPages(Math.ceil(response.data.totalCount / 5));
+            extractCategories(response.data.books);
+            extractTypes(response.data.books);
         } catch (error) {
             setErrorMessage('Error fetching data. Please try again later.');
         } finally {
             setLoading(false);
         }
+    }
+
+    const extractCategories = (books) => {
+        const uniqueCategories = [...new Set(books.map(book => book.category))];
+        setCategories(uniqueCategories);
+    }
+
+    const extractTypes = (books) => {
+        const uniqueTypes = [...new Set(books.map(book => book.type))];
+        setTypes(uniqueTypes);
+    }
+
+    const handleCategoryFilter = (category) => {
+        setFilterCategory(category);
+    }
+
+    const handleTypeFilter = (type) => {
+        setFilterType(type);
     }
 
     const handlePageChange = (pageNumber) => {
@@ -116,9 +141,12 @@ const TableWithPagination = () => {
     }
 
     const filteredData = data.filter(book => {
-        if (book && book.title) {
-            const title = book.title.toLowerCase();
-            return title.includes(searchQuery.toLowerCase());
+        if ((!filterCategory || filterCategory === 'All' || book.category === filterCategory) &&
+            (!filterType || filterType === 'All' || book.type === filterType)) {
+            if (book && book.title) {
+                const title = book.title.toLowerCase();
+                return title.includes(searchQuery.toLowerCase());
+            }
         }
         return false;
     });
@@ -126,7 +154,25 @@ const TableWithPagination = () => {
     return (
         <div className="my-4">
             {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-            <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} /> {/* Render the SearchBar component */}
+            <div className='row'>
+                <div className='form-group col-6'>
+                    <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} /> {/* Render the SearchBar component */}
+                </div>
+                <div className='form-group col-3'>
+                    <DropdownFilter
+                        title={`Filter Category: ${filterCategory || 'All'}`}
+                        items={[...categories, 'All']}
+                        onClick={handleCategoryFilter}
+                    />
+                </div>
+                <div className='form-group col-3'>
+                    <DropdownFilter
+                        title={`Filter Type: ${filterType || 'All'}`}
+                        items={[...types, 'All']}
+                        onClick={handleTypeFilter}
+                    />
+                </div>
+            </div>
             {loading ? (
                 <div className="text-center">
                     <Spinner animation="border" role="status">

@@ -86,7 +86,7 @@ const AddBookForm = ({ setShowAddBookForm, showAddBookForm }) => {
             </div>
 
             <div className="row">
-                <div className="form-group col-md-6">
+                <div className="form-group col-md-6 d-flex align-items-center justify-content-center">
                     <FormGroup controlId="type" label="Type" type="text" name="type" value={bookData.type} onChange={handleChange} error={errors.type} />
                 </div>
                 <div className="form-group col-md-4">
