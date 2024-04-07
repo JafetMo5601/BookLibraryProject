@@ -1,11 +1,11 @@
 .app-container {
-  background-color: #f8f9fa; /* Light gray background */
-  min-height: 100vh; /* Minimum height of viewport */
+  background-color: #f8f9fa; 
+  min-height: 100vh;
 }
 
 .title-container {
   padding: 20px 0;
-  border-bottom: 1px solid #ced4da; /* Horizontal line */
+  border-bottom: 1px solid #ced4da;
 }
 
 .toggle-form-container {
@@ -24,34 +24,31 @@
 }
 
 .content-container.show-form.transitioning {
-  transition-duration: max-height 0.3s ease-in-out, padding 0s ease-in-out; /* No transition for padding */
+  transition-duration: max-height 0.3s ease-in-out, padding 0s ease-in-out;
 }
 
 .add-book-form-container {
-  background-color: #ffffff; /* White background */
+  background-color: #ffffff;
   padding: 20px;
-  border: 1px solid #ced4da; /* Border color */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow */
-  margin-bottom: 20px; /* Spacing at the bottom */
+  border: 1px solid #ced4da;
+  border-radius: 5px; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  margin-bottom: 20px;
 }
 
-/* Override default input width */
 .add-book-form-container input[type="text"],
 .add-book-form-container input[type="number"] {
-  width: 100%; /* Full width for text and number inputs */
+  width: 100%;
 }
 
-/* Adjust margin for form group elements */
 .add-book-form-container .form-group {
-  margin-bottom: 20px; /* Spacing between form groups */
+  margin-bottom: 20px;
 }
 
-/* Style submit button */
 .add-book-form-container button[type="submit"] {
-  width: 100%; /* Full width */
+  width: 100%;
 }
 
 .row {
-  margin-bottom: 20px; /* Or adjust the value as needed */
+  margin-bottom: 20px;
 }

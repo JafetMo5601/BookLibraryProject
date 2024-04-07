@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TableWithPagination from './components/TableWithPagination.jsx';
-import './App.css'; // Import CSS file for custom styles
+import './App.css';
 import AddBookForm from './components/AddbookForm.jsx';
 
 function App() {

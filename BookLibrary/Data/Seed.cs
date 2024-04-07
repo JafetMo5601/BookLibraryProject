@@ -9,17 +9,14 @@ namespace BookLibrary.Data
         {
             try
             {
-                // Check if the database has been seeded already
                 if (dbContext.Books.Any())
                 {
                     Console.WriteLine("Database already seeded.");
-                    return; // Exit if already seeded
+                    return;
                 }
 
-                // Load SQL script from file
                 var sqlScript = File.ReadAllText("data.sql");
 
-                // Execute SQL script
                 dbContext.Database.ExecuteSqlRaw(sqlScript);
 
                 Console.WriteLine("Database seeded successfully.");

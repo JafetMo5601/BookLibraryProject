@@ -33,7 +33,6 @@ const TableWithPagination = ({ showAddBookForm, setShowAddBookForm }) => {
         try {
             const response = await axios.get(`${config.apiUrl}/books?page=${page}&pageSize=5`);
             setData(response.data.books);
-            // setData([]);
             setTotalPages(Math.ceil(response.data.totalCount / 5));
             extractCategories(response.data.books);
             extractTypes(response.data.books);
@@ -80,7 +79,7 @@ const TableWithPagination = ({ showAddBookForm, setShowAddBookForm }) => {
         try {
             const updatedBook = { ...data.find(book => book.book_id === selectedBookId), ...updatedData[selectedBookId] };
             if (updatedBook.authors) {
-                const [firstName, lastName] = updatedBook.authors.split(' '); // Split full name into first name and last name
+                const [firstName, lastName] = updatedBook.authors.split(' '); 
                 updatedBook.first_name = firstName;
                 updatedBook.last_name = lastName;
                 delete updatedBook.authors;
@@ -97,7 +96,6 @@ const TableWithPagination = ({ showAddBookForm, setShowAddBookForm }) => {
         if (field !== 'available_copies') {
             setEditableField({ id, field });
             if (field === 'authors') {
-                // If editing authors, split full name into first name and last name
                 const [firstName, lastName] = value.split(' ');
                 setUpdatedData({ ...updatedData, [id]: { ...updatedData[id], 'first_name': firstName, 'last_name': lastName } });
             } else {

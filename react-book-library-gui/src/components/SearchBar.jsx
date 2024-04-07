@@ -2,8 +2,8 @@ import React from 'react';
 
 const SearchBar = ({ searchQuery, handleSearchChange }) => {
     return (
-        <div className="mb-3 d-flex align-items-center"> {/* Use flexbox to align items */}
-            <div className="subtitle me-2">Search:</div> {/* Apply subtitle style and margin */}
+        <div className="mb-3 d-flex align-items-center"> 
+            <div className="subtitle me-2">Search:</div> 
             <input
                 type="text"
                 className="form-control"
