@@ -7,8 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Add services to the container.
-builder.Services.AddDbContext<BooksDbContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+
+builder.Services.AddDbContext<BooksDbContext>(
+    options => options.UseSqlServer(connectionString));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,7 +24,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificHeaders",
         builder => {
-            builder.WithOrigins("http://localhost:5173")
+            builder.WithOrigins("http://localhost:3005")
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
@@ -43,7 +47,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowSpecificHeaders");
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseRouting();
 app.MapControllers();

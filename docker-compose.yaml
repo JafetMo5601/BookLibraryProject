@@ -9,3 +9,33 @@ services:
       - ACCEPT_EULA=y
     ports:
       - "1433:1433"
+
+  api: 
+    environment: 
+      - CONNECTION_STRING=Server=db,1433;Database=master;User Id=sa;Password=P@ssw0rd;trusted_connection=false;Persist Security Info=False;Encrypt=False
+    build: 
+      context: BookLibrary
+      dockerfile: Dockerfile
+    container_name: dotnet_api
+    ports:
+      - "3004:80"
+    healthcheck:
+        test: ["CMD-SHELL", "curl --fail http://localhost:80/books || exit 1"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
+    depends_on:
+      - db
+
+  gui:
+    build:
+      context: react-book-library-gui
+      dockerfile: Dockerfile
+    container_name: react_app
+    ports:
+      - "3005:3005"
+    depends_on:
+      api:
+        condition: service_healthy
+    links: 
+        - api

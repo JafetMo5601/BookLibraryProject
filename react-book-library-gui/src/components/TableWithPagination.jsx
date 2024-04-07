@@ -7,7 +7,7 @@ import ConfirmationModal from './ConfirmationModal';
 import DropdownFilter from './DropdownFilter';
 import SearchBar from './SearchBar'; 
 
-const TableWithPagination = () => {
+const TableWithPagination = ({ showAddBookForm, setShowAddBookForm }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -33,6 +33,7 @@ const TableWithPagination = () => {
         try {
             const response = await axios.get(`${config.apiUrl}/books?page=${page}&pageSize=5`);
             setData(response.data.books);
+            // setData([]);
             setTotalPages(Math.ceil(response.data.totalCount / 5));
             extractCategories(response.data.books);
             extractTypes(response.data.books);
@@ -154,18 +155,18 @@ const TableWithPagination = () => {
     return (
         <div className="my-4">
             {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-            <div className='row'>
-                <div className='form-group col-6'>
-                    <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} /> {/* Render the SearchBar component */}
+            <div className='row align-items-center'>
+                <div className='form-group col-md-12 col-lg-4 mb-2'>
+                    <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
                 </div>
-                <div className='form-group col-3'>
+                <div className='form-group col-md-6 col-lg-4 mb-2'>
                     <DropdownFilter
                         title={`Filter Category: ${filterCategory || 'All'}`}
                         items={[...categories, 'All']}
                         onClick={handleCategoryFilter}
                     />
                 </div>
-                <div className='form-group col-3'>
+                <div className='form-group col-md-6 col-lg-4 mb-2'>
                     <DropdownFilter
                         title={`Filter Type: ${filterType || 'All'}`}
                         items={[...types, 'All']}
@@ -173,58 +174,75 @@ const TableWithPagination = () => {
                     />
                 </div>
             </div>
-            {loading ? (
-                <div className="text-center">
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </div>
-            ) : (
-                <>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Book Title</th>
-                                <th>Authors</th>
-                                <th>Type</th>
-                                <th>ISBN</th>
-                                <th>Category</th>
-                                <th>Available Copies</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredData.map(book => (
-                                <tr key={book.book_id}>
-                                    <td>{renderTableCell(book.book_id, 'title', book.title)}</td>
-                                    <td>{renderTableCell(book.book_id, 'authors', `${book.first_name} ${book.last_name}`)}</td>
-                                    <td>{renderTableCell(book.book_id, 'type', book.type)}</td>
-                                    <td>{renderTableCell(book.book_id, 'isbn', book.isbn)}</td>
-                                    <td>{renderTableCell(book.book_id, 'category', book.category)}</td>
-                                    <td>{book.total_copies - book.copies_in_use}</td>
-                                    <td>
-                                        <ButtonGroup>
-                                            <Button variant="warning" onClick={() => { setSelectedBookId(book.book_id); setAction('update'); setShowModal(true); }}><i className="bi bi-pencil-fill"></i></Button>
-                                            <Button variant="danger" onClick={() => handleDelete(book.book_id)}><i className="bi bi-trash-fill"></i></Button>
-                                        </ButtonGroup>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
-                    <ConfirmationModal
-                        show={showModal}
-                        handleClose={handleCloseModal}
-                        handleConfirm={handleConfirmAction}
-                        action={action === 'delete' ? 'delete' : 'update'}
-                    />
-                </>
-            )}
+
+            <div className='mt-5'>
+                {loading ? (
+                    <div className="text-center">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </div>
+                ) : (
+                    <>
+                        {filteredData.length > 0 ? (
+                            <>
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>Book Title</th>
+                                            <th>Authors</th>
+                                            <th>Type</th>
+                                            <th>ISBN</th>
+                                            <th>Category</th>
+                                            <th>Available Copies</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredData.map(book => (
+                                            <tr key={book.book_id}>
+                                                <td>{renderTableCell(book.book_id, 'title', book.title)}</td>
+                                                <td>{renderTableCell(book.book_id, 'authors', `${book.first_name} ${book.last_name}`)}</td>
+                                                <td>{renderTableCell(book.book_id, 'type', book.type)}</td>
+                                                <td>{renderTableCell(book.book_id, 'isbn', book.isbn)}</td>
+                                                <td>{renderTableCell(book.book_id, 'category', book.category)}</td>
+                                                <td>{book.total_copies - book.copies_in_use}</td>
+                                                <td>
+                                                    <ButtonGroup>
+                                                        <Button variant="warning" onClick={() => { setSelectedBookId(book.book_id); setAction('update'); setShowModal(true); }}><i className="bi bi-pencil-fill"></i></Button>
+                                                        <Button variant="danger" onClick={() => handleDelete(book.book_id)}><i className="bi bi-trash-fill"></i></Button>
+                                                    </ButtonGroup>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                />
+                                <ConfirmationModal
+                                    show={showModal}
+                                    handleClose={handleCloseModal}
+                                    handleConfirm={handleConfirmAction}
+                                    action={action === 'delete' ? 'delete' : 'update'}
+                                />
+                            </>
+                        ) : (
+                            <div className="text-center">
+                                {data.length === 0 ? (
+                                    <p>No books created yet.</p>
+                                ) : (
+                                    <p>There are no books matching the current filters.</p>
+                                )}
+                                <Button onClick={() => setShowAddBookForm(true)}>Create one here</Button>
+                            </div>
+                        )}
+                        
+                    </>
+                )}
+            </div>
         </div>
     );
 }

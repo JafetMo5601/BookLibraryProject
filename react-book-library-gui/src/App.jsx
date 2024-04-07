@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import TableWithPagination from './components/TableWithPagination';
-import AddBookForm from './components/AddBookForm';
+import TableWithPagination from './components/TableWithPagination.jsx';
 import './App.css'; // Import CSS file for custom styles
+import AddBookForm from './components/AddbookForm.jsx';
 
 function App() {
   const [showAddBookForm, setShowAddBookForm] = useState(false);
@@ -26,7 +26,7 @@ function App() {
         {showAddBookForm ? (
           <AddBookForm showAddBookForm={showAddBookForm} setShowAddBookForm={setShowAddBookForm} />
         ) : (
-          <TableWithPagination />
+          <TableWithPagination showAddBookForm={showAddBookForm} setShowAddBookForm={setShowAddBookForm} />
         )}
       </div>
     </Container>
