@@ -1,4 +1,5 @@
 ﻿using BookLibrary.Data;
+using BookLibrary.EventHandler;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -12,10 +13,12 @@ namespace BookLibrary.Controllers
     [Route("[controller]")]
     public class BooksController: ControllerBase
 	{
+         private readonly IEventHandler<BookRegisteredEvent> _bookRegisteredEventHandler;
         private readonly BooksDbContext _context;
 
-        public BooksController(BooksDbContext context)
+        public BooksController(BooksDbContext context, IEventHandler<BookRegisteredEvent> bookRegisteredEventHandler)
         {
+            _bookRegisteredEventHandler = bookRegisteredEventHandler;
             _context = context;
         }
 
@@ -51,10 +54,15 @@ namespace BookLibrary.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            try {
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
+                await _bookRegisteredEventHandler.HandleEventAsync(new BookRegisteredEvent{ Title = book.title, Category = book.category});
 
-            return CreatedAtAction(nameof(GetBook), new { id = book.book_id }, book);
+                return CreatedAtAction(nameof(GetBook), new { id = book.book_id }, book);
+            } catch (Exception e) {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPut("{id}")]

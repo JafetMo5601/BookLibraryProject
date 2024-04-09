@@ -1,4 +1,5 @@
 ﻿using BookLibrary.Data;
+using BookLibrary.EventHandler;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Configuration;
@@ -19,6 +20,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<Seed>();
+builder.Services.AddSingleton<IEventHandler<BookRegisteredEvent>, BookRegisteredEventHandler>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -52,4 +55,3 @@ app.UseRouting();
 app.MapControllers();
 
 app.Run();
-

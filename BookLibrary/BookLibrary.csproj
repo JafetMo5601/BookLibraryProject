@@ -32,8 +32,10 @@
 
   <ItemGroup>
     <None Remove="Data\" />
+    <None Remove="EventHandler\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="EventHandler\" />
   </ItemGroup>
 </Project>
